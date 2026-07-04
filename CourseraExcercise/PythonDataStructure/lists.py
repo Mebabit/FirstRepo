@@ -6,3 +6,12 @@ You will parse the From line using split() and print out the second word in the 
 Hint: make sure not to include the lines that start with 'From:'.
 Also look at the last line of the sample output to see how to print the count."""
 
+a = open("C:\pracFolder\CourseraExcercise\PythonDataStructure\mbox-short.txt")
+
+for line in a:
+    if not line.startswith("From "):
+        continue
+    b = line.split()
+    words = b[1]
+print(words)
+
