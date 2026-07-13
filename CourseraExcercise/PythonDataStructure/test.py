@@ -1,30 +1,31 @@
-"""Write a program that prompts for a file name, then opens that file and reads through the file, 
-looking for lines of the form:  X-DSPAM-Confidence:    0.8475
-Count these lines and extract the floating point values from each of the lines
-and compute the average of those values and produce an output as shown below.
-Do not use the sum() function or a variable named sum in your solution.
-You can download the sample data at http://www.py4e.com/code3/mbox-short.txt when you
-are testing below enter mbox-files.txt as the file name."""
+"""
+Write a program to prompt for a file name, then open that file
+and read through the file, looking for line of the form:
+X-DSPAM-Confindence:     0.8475, count these line and extract the floating point
+values from each of the lines and compute the average of those values
+and produce an output as shown below. Do not used the sum() function or
+a variable name sum in your situation.
+"""
 
-a = input("Enter file location: ")
-b = open(a)
+fname = input("Enter file name: ")
+handle = open(fname)
 
-total = 0.0
-count = 0
+counts = 0
+total_value = 0.0
 
-for line in b:
-    if not line.startswith("X-DSPAM-Confidence:"):
+for line in handle:
+    if not line.startswith("X-DSPAM-Confindence:"):
         continue
 
-    colon = line.find(":")
-    num = line[colon+1:]
+    colon_pos = line.find(":")
+    number_str = line[colon_pos + 1:]
 
-    value = float(num.strip())
+    value = float(number_str.strip())
+    
 
-    total += value
-    count += 1
-
-avg = total/count
-
-print(avg)
+    total_value = total_value + value
+    counts = counts + 1
+    
+average = total_value / counts
+print("Average Spam confidence: ", average)
 
