@@ -1,19 +1,18 @@
-
 import xml.etree.ElementTree as et
 
-inp = '''
+data = '''
 <stuff>
-    <user x = "2" >
-        <id> 001 </id> 
-        <name> Chuck </name>
+    <user x = "2">
+        <id>001</id>
+        <name>Chuck</name>
     </user>
-    <user x = "7" >
-        <id> 009 </id>
-        <name> Brent </name>
+    <user x = "7">
+        <id>009</id>
+        <name>Brent</name>
     </user>
 </stuff>'''
 
-stuff = et.fromstring(inp)
+stuff = et.fromstring(data)
 lst = stuff.findall("user")
 print("User count:", len(lst))
 for item in lst:
@@ -21,4 +20,4 @@ for item in lst:
     print("ID:", item.find("id").text)
     print("Attribute:", item.get("x"))
 
-                
+    
