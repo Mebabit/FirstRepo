@@ -10,9 +10,9 @@ from pynput.keyboard import Key, Controller
 
 # Configuration
 CAMERA_INDEX       = 0  # Changed to 0 as default, change to 1 if using external webcam
-DEAD_ZONE_DEG      = 15   # Angle must exceed this to start turning (neutral band ±15°)
-RELEASE_ZONE_DEG   = 10   # Hysteresis: key is released only once angle returns inside this
-SOFT_ZONE_DEG      = 30   # Full-strength turn reached at this angle
+DEAD_ZONE_DEG      = 12
+RELEASE_ZONE_DEG   = 6
+SOFT_ZONE_DEG      = 25
 FLIP_CAMERA        = True
 SHOW_ANGLE         = True
 MIN_DETECTION_CONF = 0.7
@@ -59,7 +59,7 @@ class SteeringController:
     def __init__(self):
         self.keys_held     = {Key.left: False, Key.right: False, Key.up: False, Key.down: False}
         self.angle_history = []
-        self.HISTORY_LEN   = 6   # Smooth over 6 frames — eliminates jitter without noticeable lag
+        self.HISTORY_LEN   = 1
 
     def _press(self, key):
         if not self.keys_held[key]:
@@ -94,31 +94,15 @@ class SteeringController:
         raw_angle_deg = math.degrees(raw_angle_rad)
         angle = self.smooth_angle(raw_angle_deg)
 
-        # --- 3-zone logic with hysteresis ---
-        # Positive angle  → right hand is lower → steer LEFT  (SWAPPED from original)
-        # Negative angle  → left hand is lower  → steer RIGHT (SWAPPED from original)
-        # Within ±DEAD_ZONE_DEG               → STRAIGHT (neutral band)
-
-        if self.keys_held[Key.left]:
-            # Already steering left: stay left until angle drops back inside release zone
-            if angle > RELEASE_ZONE_DEG:
-                direction = "LEFT"
-            else:
-                direction = "STRAIGHT"
-        elif self.keys_held[Key.right]:
-            # Already steering right: stay right until angle rises back inside release zone
-            if angle < -RELEASE_ZONE_DEG:
-                direction = "RIGHT"
-            else:
-                direction = "STRAIGHT"
-        else:
-            # Not currently steering — only engage once past the dead zone
-            if angle > DEAD_ZONE_DEG:
-                direction = "LEFT"
-            elif angle < -DEAD_ZONE_DEG:
-                direction = "RIGHT"
-            else:
-                direction = "STRAIGHT"
+        direction = "STRAIGHT"
+        if angle < -DEAD_ZONE_DEG:
+            direction = "LEFT"
+        elif angle > DEAD_ZONE_DEG:
+            direction = "RIGHT"
+        elif self.keys_held[Key.left] and angle > -RELEASE_ZONE_DEG:
+            direction = "STRAIGHT"
+        elif self.keys_held[Key.right] and angle < RELEASE_ZONE_DEG:
+            direction = "STRAIGHT"
 
         strength = 0.0
         if direction == "LEFT":
@@ -207,37 +191,22 @@ def draw_hud(frame, angle, direction, strength, throttle_mode, both_hands_visibl
     bar_h = 14
     bar_x = (w - bar_w) // 2
     bar_y = h - 110
-    font  = cv2.FONT_HERSHEY_SIMPLEX
-
-    # Background track
-    cv2.rectangle(frame, (bar_x, bar_y), (bar_x + bar_w, bar_y + bar_h), (40, 40, 50), -1)
-    cv2.rectangle(frame, (bar_x, bar_y), (bar_x + bar_w, bar_y + bar_h), (80, 80, 90), 1)
+    cv2.rectangle(frame, (bar_x, bar_y), (bar_x + bar_w, bar_y + bar_h), (50, 50, 60), -1)
 
     mid = bar_x + bar_w // 2
+    cv2.rectangle(frame, (mid - 2, bar_y - 4), (mid + 2, bar_y + bar_h + 4), (180, 180, 180), -1)
 
-    # Neutral zone band (visual indicator of the ±DEAD_ZONE_DEG safe range)
-    neutral_half = int((bar_w // 2) * (DEAD_ZONE_DEG / SOFT_ZONE_DEG))
-    cv2.rectangle(frame,
-                  (mid - neutral_half, bar_y),
-                  (mid + neutral_half, bar_y + bar_h),
-                  (60, 60, 70), -1)
-    cv2.putText(frame, "STRAIGHT",
-                (mid - neutral_half, bar_y - 6), font, 0.35, CLR_NEUTRAL, 1)
-
-    # Filled strength bar on active side
     fill_len = int((bar_w // 2) * strength)
     if direction == "LEFT" and fill_len > 0:
-        cv2.rectangle(frame, (mid - fill_len, bar_y), (mid - neutral_half, bar_y + bar_h), CLR_LEFT, -1)
+        cv2.rectangle(frame, (mid - fill_len, bar_y), (mid, bar_y + bar_h), CLR_LEFT, -1)
     elif direction == "RIGHT" and fill_len > 0:
-        cv2.rectangle(frame, (mid + neutral_half, bar_y), (mid + fill_len, bar_y + bar_h), CLR_RIGHT, -1)
+        cv2.rectangle(frame, (mid, bar_y), (mid + fill_len, bar_y + bar_h), CLR_RIGHT, -1)
 
-    # Center marker
-    cv2.rectangle(frame, (mid - 2, bar_y - 4), (mid + 2, bar_y + bar_h + 4), (200, 200, 200), -1)
-
+    font      = cv2.FONT_HERSHEY_SIMPLEX
     dir_color = CLR_LEFT if direction == "LEFT" else (CLR_RIGHT if direction == "RIGHT" else CLR_NEUTRAL)
-    cv2.putText(frame, "<- LEFT",  (bar_x, bar_y - 10),              font, 0.45, CLR_LEFT,  1)
-    cv2.putText(frame, "RIGHT ->", (bar_x + bar_w - 80, bar_y - 10), font, 0.45, CLR_RIGHT, 1)
-    cv2.putText(frame, direction,  (mid - 35, bar_y + bar_h + 28),   font, 0.8,  dir_color, 2)
+    cv2.putText(frame, "<- LEFT",  (bar_x, bar_y - 10),               font, 0.45, CLR_LEFT,  1)
+    cv2.putText(frame, "RIGHT ->", (bar_x + bar_w - 80, bar_y - 10),  font, 0.45, CLR_RIGHT, 1)
+    cv2.putText(frame, direction,  (mid - 30, bar_y + bar_h + 28),    font, 0.8,  dir_color, 2)
 
     if SHOW_ANGLE:
         cv2.putText(frame, f"{angle:+.1f} deg", (bar_x, h - 80), font, 0.55, CLR_TEXT, 1)
