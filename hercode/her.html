@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#f9d5e5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Hey you! 🌸</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blush: #fce4ec;
+      --blush-mid: #f8bbd0;
+      --rose: #e91e8c;
+      --rose-soft: #f48fb1;
+      --petal-1: #ffb3c6;
+      --petal-2: #ffc8dd;
+      --petal-3: #ff85a1;
+      --white-glass: rgba(255,255,255,0.52);
+      --card-border: rgba(255,255,255,0.75);
+      --shadow: rgba(233,30,140,0.12);
+      --text-dark: #6d3b5e;
+      --text-mid: #9c4f7a;
+    }
+
+    html, body {
+      min-height: 100%;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(145deg, #fce4ec 0%, #ffd6e8 40%, #ffe0f0 70%, #fce4ec 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ─── Petal Canvas ─── */
+    #petal-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .petal {
+      position: absolute;
+      top: -40px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50% 0 50% 0;
+      opacity: 0.7;
+      animation: petalFall linear infinite;
+      will-change: transform, opacity;
+    }
+
+    @keyframes petalFall {
+      0%   { transform: translateY(0) rotate(0deg) scale(1);   opacity: 0.8; }
+      10%  { opacity: 0.9; }
+      80%  { opacity: 0.6; }
+      100% { transform: translateY(110vh) rotate(720deg) scale(0.7); opacity: 0; }
+    }
+
+    /* ─── Card ─── */
+    .card {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 380px;
+      background: var(--white-glass);
+      border: 1.5px solid var(--card-border);
+      border-radius: 28px;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow:
+        0 8px 32px var(--shadow),
+        0 2px 8px rgba(255,255,255,0.5) inset;
+      padding: 32px 24px 28px;
+      text-align: center;
+      animation: cardIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(28px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ─── Image / GIF ─── */
+    .img-wrap {
+      width: 160px;
+      height: 160px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid var(--blush-mid);
+      box-shadow: 0 4px 20px rgba(233,30,140,0.18);
+      background: var(--blush);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+
+    .img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ─── Typography ─── */
+    .eyebrow {
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--rose);
+      font-weight: 600;
+      margin-bottom: 10px;
+      opacity: 0.85;
+    }
+
+    .heading {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-dark);
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .subtext {
+      font-size: 15px;
+      color: var(--text-mid);
+      line-height: 1.5;
+      margin-bottom: 28px;
+      min-height: 48px;
+      transition: all 0.3s ease;
+    }
+
+    /* ─── Buttons ─── */
+    .btn-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 50px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      text-decoration: none;
+    }
+
+    .btn:active { transform: scale(0.96) !important; }
+
+    .btn-yes {
+      background: linear-gradient(135deg, #e91e8c 0%, #ff6eb4 100%);
+      color: #fff;
+      box-shadow:
+        0 4px 18px rgba(233,30,140,0.38),
+        0 0 0 0 rgba(233,30,140,0.4);
+      animation: glowPulse 2.2s ease-in-out infinite;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 4px 18px rgba(233,30,140,0.38), 0 0 0 0 rgba(233,30,140,0.3); }
+      50%       { box-shadow: 0 4px 24px rgba(233,30,140,0.55), 0 0 0 8px rgba(233,30,140,0); }
+    }
+
+    .btn-yes:hover { transform: translateY(-2px) scale(1.02); }
+
+    .btn-no {
+      background: rgba(255,255,255,0.65);
+      color: var(--text-mid);
+      border: 1.5px solid var(--blush-mid);
+      position: absolute;
+      width: calc(100% - 0px);
+      transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    .btn-no.dodging {
+      animation: dodge 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    @keyframes dodge {
+      0%   { transform: translateX(0)   translateY(0); }
+      30%  { transform: translateX(60px) translateY(-18px) rotate(8deg); }
+      60%  { transform: translateX(-40px) translateY(10px) rotate(-5deg); }
+      100% { transform: translateX(0)   translateY(0); }
+    }
+
+    /* Static spacer so btn-no absolute doesn't collapse layout */
+    .btn-no-spacer { height: 52px; }
+
+    /* ─── WhatsApp CTA ─── */
+    .btn-whatsapp {
+      background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+      color: #fff;
+      box-shadow: 0 4px 18px rgba(37,211,102,0.38);
+      display: none;
+      margin-top: 4px;
+      text-decoration: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-whatsapp.show {
+      display: flex;
+      animation: bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    .btn-whatsapp:hover { transform: translateY(-2px) scale(1.02); }
+
+    @keyframes bounceIn {
+      from { opacity:0; transform: scale(0.7) translateY(20px); }
+      to   { opacity:1; transform: scale(1) translateY(0); }
+    }
+
+    /* ─── Confetti / Hearts ─── */
+    #burst-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+      overflow: hidden;
+    }
+
+    .burst-particle {
+      position: absolute;
+      font-size: 22px;
+      animation: burstFly 1.4s cubic-bezier(0.2,0.8,0.4,1) forwards;
+      will-change: transform, opacity;
+    }
+
+    @keyframes burstFly {
+      0%   { transform: translate(0,0) scale(0.4) rotate(0deg); opacity: 1; }
+      70%  { opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(1.1) rotate(var(--dr)); opacity: 0; }
+    }
+
+    /* ─── State transitions ─── */
+    .state-section {
+      transition: opacity 0.3s ease;
+    }
+
+    .fade-out { opacity: 0; pointer-events: none; }
+
+    /* ─── Bounce on load ─── */
+    @keyframes imgBounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-6px); }
+    }
+
+    .img-bounce { animation: imgBounce 2.8s ease-in-out infinite; }
+
+    /* ─── Wiggle ─── */
+    @keyframes wiggle {
+      0%,100% { transform: rotate(0deg); }
+      25% { transform: rotate(-8deg) scale(1.08); }
+      75% { transform: rotate(8deg) scale(1.08); }
+    }
+    .img-excited { animation: wiggle 0.5s ease-in-out 3; }
+
+    /* ─── Footer ─── */
+    .footer {
+      margin-top: 18px;
+      font-size: 12px;
+      color: rgba(157,79,122,0.5);
+      letter-spacing: 0.05em;
+      z-index: 10;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Petal Background -->
+<div id="petal-canvas"></div>
+
+<!-- Confetti Layer -->
+<div id="burst-layer"></div>
+
+<!-- Card -->
+<div class="card">
+
+  <!-- Image -->
+  <div class="img-wrap img-bounce" id="img-wrap">
+    <img id="main-img"
+      src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif"
+      alt="Cute character holding flowers"
+      loading="eager"
+      decoding="async"
+    />
+  </div>
+
+  <!-- Text -->
+  <p class="eyebrow">💌 A little message for you</p>
+  <h1 class="heading" id="heading">Hey you! Quick question…</h1>
+  <p class="subtext" id="subtext">Are you free today? 🌸</p>
+
+  <!-- Buttons -->
+  <div class="btn-row" id="btn-row">
+    <button class="btn btn-yes" id="btn-yes" onclick="onYes()">Yes, I am! 💖</button>
+    <div class="btn-no-spacer"></div>
+    <button class="btn btn-no" id="btn-no" onclick="onNo()" onmouseover="nudgeNo()">No, I'm not 😜</button>
+  </div>
+
+  <!-- WhatsApp (hidden until Yes) -->
+  <a class="btn btn-whatsapp" id="btn-wa"
+    href="https://wa.me/?text=I%27m%20free!%20Let%27s%20do%20it!%20%F0%9F%92%96"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+    Reply on WhatsApp 💬
+  </a>
+
+</div>
+
+<p class="footer">made with 🌸 just for you</p>
+
+<script>
+  /* ═══════════════════════════════════════
+     PETALS
+  ═══════════════════════════════════════ */
+  const colors = ['#ffb3c6','#ffc8dd','#ff85a1','#f48fb1','#ffe4ef','#ffd6e8','#ff9eb5'];
+  const canvas = document.getElementById('petal-canvas');
+
+  function makePetal() {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    const size  = 10 + Math.random() * 12;
+    const left  = Math.random() * 110 - 5;
+    const dur   = 6 + Math.random() * 8;
+    const delay = Math.random() * 10;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    p.style.cssText = `
+      left:${left}vw;
+      width:${size}px;height:${size}px;
+      background:${color};
+      animation-duration:${dur}s;
+      animation-delay:-${delay}s;
+      border-radius:${Math.random()>0.5?'50% 0 50% 0':'30% 70% 70% 30% / 30% 30% 70% 70%'};
+      opacity:${0.5+Math.random()*0.4};
+    `;
+    canvas.appendChild(p);
+    // recycle
+    setTimeout(() => {
+      if (p.parentNode) {
+        p.remove();
+        makePetal();
+      }
+    }, (dur + delay) * 1000 + 200);
+  }
+
+  // Spawn 28 petals on load
+  for (let i = 0; i < 28; i++) makePetal();
+
+  /* ═══════════════════════════════════════
+     STATE REFS
+  ═══════════════════════════════════════ */
+  const imgEl   = document.getElementById('main-img');
+  const imgWrap = document.getElementById('img-wrap');
+  const heading = document.getElementById('heading');
+  const subtext = document.getElementById('subtext');
+  const btnYes  = document.getElementById('btn-yes');
+  const btnNo   = document.getElementById('btn-no');
+  const btnWa   = document.getElementById('btn-wa');
+
+  /* ═══════════════════════════════════════
+     GIFS  (using reliable public CDN sources)
+  ═══════════════════════════════════════ */
+  const GIFS = {
+    initial: 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif',   // holding flowers
+    pout:    'https://media.giphy.com/media/l1J9u3TZfpmeDLkD6/giphy.gif',   // pouting anime
+    happy:   'https://media.giphy.com/media/3oz8xAFtqoOUUrsh7W/giphy.gif',  // excited / dancing
+  };
+
+  let noCount = 0;
+  let isDodging = false;
+
+  /* ═══════════════════════════════════════
+     NO BUTTON
+  ═══════════════════════════════════════ */
+  function nudgeNo() {
+    if (isDodging) return;
+    dodge();
+  }
+
+  function onNo() {
+    noCount++;
+    dodge();
+
+    // After a brief delay, swap image & text
+    setTimeout(() => {
+      imgWrap.classList.remove('img-bounce', 'img-excited');
+      imgEl.src = GIFS.pout + '?cb=' + noCount; // cache-bust to replay
+      heading.textContent = 'Wrong answer! 😤';
+      subtext.textContent = "Try again before I pout forever 😤🌸";
+
+      if (noCount >= 3) {
+        subtext.textContent = "Okay now I'm REALLY pouting 🥺💔 Just press Yes already!";
+      }
+    }, 200);
+  }
+
+  function dodge() {
+    if (isDodging) return;
+    isDodging = true;
+
+    const maxX = 90;
+    const maxY = -28;
+    const dx = (Math.random() > 0.5 ? 1 : -1) * (30 + Math.random() * maxX);
+    const dy = (Math.random() > 0.5 ? 1 : -1) * (10 + Math.random() * Math.abs(maxY));
+
+    btnNo.style.transition = 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1)';
+    btnNo.style.transform  = `translate(${dx}px, ${dy}px) rotate(${dx/8}deg)`;
+
+    setTimeout(() => {
+      btnNo.style.transition = 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+      btnNo.style.transform  = 'translate(0,0) rotate(0deg)';
+      setTimeout(() => { isDodging = false; }, 420);
+    }, 380);
+  }
+
+  /* ═══════════════════════════════════════
+     YES BUTTON
+  ═══════════════════════════════════════ */
+  function onYes() {
+    // Swap image
+    imgWrap.classList.remove('img-bounce');
+    imgEl.src = GIFS.happy;
+    setTimeout(() => imgWrap.classList.add('img-excited'), 50);
+
+    // Update text
+    heading.textContent = "Yay! Best news all day! 🥳✨";
+    subtext.textContent = "Let's grab coffee or ice cream together!";
+
+    // Hide No button, disable Yes
+    btnNo.style.display = 'none';
+    btnYes.disabled = true;
+    btnYes.style.opacity = '0.75';
+    btnYes.textContent = '✅ Locked in!';
+
+    // Show WhatsApp CTA
+    btnWa.classList.add('show');
+
+    // Burst hearts/confetti
+    burst();
+    setTimeout(burst, 500);
+    setTimeout(burst, 950);
+  }
+
+  /* ═══════════════════════════════════════
+     BURST ANIMATION
+  ═══════════════════════════════════════ */
+  const emojis = ['💖','🌸','✨','🎉','💕','🌺','🥳','💗','🌼','🎊','💓','🍦'];
+  const burstLayer = document.getElementById('burst-layer');
+
+  function burst() {
+    const cx = window.innerWidth  / 2;
+    const cy = window.innerHeight / 2;
+    const count = 14;
+
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('div');
+      el.className = 'burst-particle';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+      const angle  = (i / count) * Math.PI * 2 + Math.random() * 0.5;
+      const radius = 80 + Math.random() * 140;
+      const dx     = Math.cos(angle) * radius;
+      const dy     = Math.sin(angle) * radius - 60;
+      const dr     = (Math.random() * 360 - 180) + 'deg';
+      const delay  = Math.random() * 0.2;
+      const scale  = 0.8 + Math.random() * 0.6;
+
+      el.style.cssText = `
+        left:${cx}px; top:${cy}px;
+        --dx:${dx}px; --dy:${dy}px; --dr:${dr};
+        animation-delay:${delay}s;
+        font-size:${16 + Math.random() * 14}px;
+        transform: scale(${scale});
+      `;
+
+      burstLayer.appendChild(el);
+      setTimeout(() => el.remove(), 1800);
+    }
+  }
+
+  /* ═══════════════════════════════════════
+     PREVENT RUBBER BAND / OVERSCROLL (iOS)
+  ═══════════════════════════════════════ */
+  document.addEventListener('touchmove', (e) => {
+    if (e.target === document.body) e.preventDefault();
+  }, { passive: false });
+</script>
+</body>
+</html>
